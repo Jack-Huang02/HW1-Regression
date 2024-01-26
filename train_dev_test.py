@@ -23,20 +23,20 @@ def train(tr_set, dv_set, model, config, device):
             optimizer.step()
             loss_record['train'].append(mse_loss.detach().cpu().item())
 
-            dev_mse = dev(dv_set, model, device)
-            if dev_mse < min_mse:
-                min_mse = dev_mse
-                print('Saving model (epoch = {:4d}, loss = {:.4f})'.format(epoch + 1, min_mse))
-                torch.save(model.state_dict(), config['save_path'])
-                early_stop_cnt = 0
-            else:
-                early_stop_cnt += 1
-            epoch += 1
-            loss_record['dev'].append(dev_mse)
-            if early_stop_cnt > config['early_stop']:
-                break
-        print('Finished training after {} epochs'.format(epoch))
-        return min_mse, loss_record
+        dev_mse = dev(dv_set, model, device)
+        if dev_mse < min_mse:
+            min_mse = dev_mse
+            print('Saving model (epoch = {:4d}, loss = {:.4f})'.format(epoch + 1, min_mse))
+            torch.save(model.state_dict(), config['save_path'])
+            early_stop_cnt = 0
+        else:
+            early_stop_cnt += 1
+        epoch += 1
+        loss_record['dev'].append(dev_mse)
+        if early_stop_cnt > config['early_stop']:
+            break
+    print('Finished training after {} epochs'.format(epoch))
+    return min_mse, loss_record
 
 def dev(dv_set, model, device):
     model.eval()
@@ -61,3 +61,4 @@ def testing(tt_set, model, device):
             preds.append(pred.detach().cpu())
     preds = torch.cat(preds, dim=0).numpy
     return preds
+
